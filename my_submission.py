@@ -53,30 +53,69 @@ def differential_evolution(fobj,
         maxiter: maximum number of iterations
         verbose: display information if True    
     '''
+    #................................................................
+    
     n_dimensions = len(bounds) # dimension of the input space of 'fobj'
     #    This generates our initial population of 10 random vectors. 
     #    Each component x[i] is normalized between [0, 1]. 
+    
+    
+    # Initialise an initial population of normalized random values. 
+    # 2D-array with dimensions popsize * n_dimensions. For task_1 this is 6 * 20.
+    population = np.random.rand(popsize, n_dimensions)
+    #print(population)
+    
+    # Denormalizes the parameters to the corresponding values.
+    # Need further commenting explanations of these steps.
     #    We will use the bounds to denormalize each component only for 
     #    evaluating them with fobj.
+    min_b, max_b = np.asarray(bounds).T
+    diff = np.fabs(min_b - max_b)
+    denormalized_population = min_b + (population * diff)
+    cost = np.asarray([fobj(i) for i in denormalized_population])
     
-    'INSERT MISSING CODE HERE'
-
+    best_idx = np.argmin(cost)
+    best = denormalized_population[best_idx]
+    
     if verbose:
         print(
         '** Lowest cost in initial population = {} '
         .format(cost[best_idx]))        
     for i in range(maxiter):
         if verbose:
-            print('** Starting generation {}, '.format(i))        
+            print('** Starting generation {}, '.format(i))    
+        
+        for j in range(popsize) :
+            #................................................................
+            idxs = [idx for idx in range(popsize) if idx != j]
+            a, b, c = population[np.random.choice(idxs, 3, replace = False)]
+            # Creates a mutant vector and clips the entries to the interval [0,1]
+            mut = np.clip(a + mut * (b - c), 0, 1)
             
-        for ...
-            :
-            'INSERT MISSING CODE HERE'
-            :
+            cross_points = np.random.rand(n_dimensions) < crossp
+            if not np.any(cross_points):
+                cross_points[np.random.randint(0, n_dimensions)] = True
+            trial = np.where(cross_points, mut, population[j])
+            trial_denorm = min_b + trial * diff
+            f = fobj(trial_denorm)
+            #................................................................
+
+            #................................................................
+            if f < cost[j]:
+                cost[j] = f
+                population[j] = trial
+                if f < cost[best_idx]: #and all(bounds[k][0]<=trial_denorm[k]<=bounds[k][1] for k in range(len(trial_denorm))):
+                    best_idx = j
+                    best = trial_denorm
+            #................................................................
+        
+          
         yield best, cost[best_idx]
 
 # ----------------------------------------------------------------------------
 
+    
+    
 def task_1():
     '''
     Our goal is to fit a curve (defined by a polynomial) to the set of points 
@@ -99,7 +138,11 @@ def task_1():
             assert type(x) is np.ndarray
             y = np.zeros_like(x)
             
-        'INSERT MISSING CODE HERE'
+        '''DONE - INSERT MISSING CODE HERE'''
+        # Following 2 lines inserted by Max
+        # Same code as in prac 3 exercise 2, apart from the reversed duple.
+        for i in reversed(range(0,len(w))):
+            y = w[i] + y*x
     
         return y
 
@@ -113,7 +156,7 @@ def task_1():
         are the numpy arrays defined in the context of function 'task_1'.        
         '''
         Y_pred = fmodel(X, w)
-        return np.sqrt(sum((Y -  'INSERT MISSING CODE HERE'
+        return np.sqrt(sum((Y_pred-X)**2).mean())
 
 
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
@@ -121,13 +164,14 @@ def task_1():
     # Create the training set
     X = np.linspace(-5, 5, 500)
     Y = np.cos(X) + np.random.normal(0, 0.2, len(X))
-    
+    '''
     # Create the DE generator
-    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, mut=1, maxiter=2000)
+    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, mut=1, maxiter=2000, verbose=False)
     
     # We'll stop the search as soon as we found a solution with a smaller
     # cost than the target cost
     target_cost = 0.5
+    
     
     # Loop on the DE generator
     for i , p in enumerate(de_gen):
@@ -135,13 +179,14 @@ def task_1():
         # w : best solution so far
         # c_w : cost of w        
         # Stop when solution cost is less than the target cost
-        if c_w< 'INSERT MISSING CODE HERE':
+        if c_w < target_cost : # Added stop when current cost of best solution is less than target cost / Max
             break
+    '''
         
     # Print the search result
-    print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
-    #    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=1000))    
-    #    w = result[-1][0]
+    # print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
+    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=5000, verbose=False))    
+    w = result[-1][0]
         
     # Plot the approximating polynomial
     plt.scatter(X, Y, s=2)
@@ -189,7 +234,7 @@ def task_2():
         
         clf.fit(X_train_transformed, y_train)
         # compute the accurary on the test set
-        mean_accuracy = clf.score( 'INSERT MISSING CODE HERE'
+        mean_accuracy = 0 #clf.score( 'INSERT MISSING CODE HERE'
  
         return -mean_accuracy
     
