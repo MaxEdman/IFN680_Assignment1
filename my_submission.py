@@ -34,7 +34,8 @@ def differential_evolution(fobj,
                            crossp=0.7, 
                            popsize=20, 
                            maxiter=100,
-                           verbose = True):
+                           verbose = True,
+                           verbose2 = True):
     '''
     This generator function yields the best solution x found so far and 
     its corresponding value of fobj(x) at each iteration. In order to obtain 
@@ -62,7 +63,7 @@ def differential_evolution(fobj,
     
     # Initialise an initial population of normalized random values. 
     # 2D-array with dimensions popsize * n_dimensions. For task_1 this is 6 * 20.
-    population = np.random.rand(popsize, n_dimensions)
+    w = np.random.rand(popsize, n_dimensions)
     #print(population)
     
     # Denormalizes the parameters to the corresponding values.
@@ -71,41 +72,53 @@ def differential_evolution(fobj,
     #    evaluating them with fobj.
     min_b, max_b = np.asarray(bounds).T
     diff = np.fabs(min_b - max_b)
-    denormalized_population = min_b + (population * diff)
-    cost = np.asarray([fobj(i) for i in denormalized_population])
+    w_denorm = min_b + (w * diff)
+    cost = np.asarray([fobj(i) for i in w_denorm])
     
     best_idx = np.argmin(cost)
-    best = denormalized_population[best_idx]
+    best = w_denorm[best_idx]
     
     if verbose:
         print(
         '** Lowest cost in initial population = {} '
         .format(cost[best_idx]))        
     for i in range(maxiter):
-        if verbose:
+        if verbose2:
             print('** Starting generation {}, '.format(i))    
         
-        for j in range(popsize) :
+        for k in range(popsize) :
             #................................................................
-            idxs = [idx for idx in range(popsize) if idx != j]
-            a, b, c = population[np.random.choice(idxs, 3, replace = False)]
-            # Creates a mutant vector and clips the entries to the interval [0,1]
+            # Defines a list of indexes in the population exluding the current vector
+            idxs = [idx for idx in range(popsize) if idx != k]
+            
+            # Select by random 3 vectors in the population from the idxs above
+            a, b, c = w[np.random.choice(idxs, 3, replace = False)]
+            
+            # Creates a mutant vector based on the 3 selected vectors and clips the entries to the interval [0,1]
             mut = np.clip(a + mut * (b - c), 0, 1)
             
-            cross_points = np.random.rand(n_dimensions) < crossp
-            if not np.any(cross_points):
-                cross_points[np.random.randint(0, n_dimensions)] = True
-            trial = np.where(cross_points, mut, population[j])
-            trial_denorm = min_b + trial * diff
+            # Initiates an array containing booleans if the value at index i in the current vector should be    replaces by the respective value in the mutant vector. These booleans are based on the predictive value in crossp.
+            change_value = np.random.rand(n_dimensions) < crossp
+            
+            # If all values returned are false then one randomised element in the array is set to true. Otherwise the trial vector would not be different from the original vector.
+            if not np.any(change_value):
+                change_value[np.random.randint(0, n_dimensions)] = True
+            
+            # Creates a trial vector where the values from the mutant vectors have been switched on the positions denoted by True values in the change_value vector.
+            trial = np.where(change_value, mut, w[k])
+            
+            # Denormalises the trial vector in order to evaluate it with the provided cost function fobj.
+            trial_denorm = min_b + (trial * diff)
             f = fobj(trial_denorm)
-            #................................................................
 
-            #................................................................
-            if f < cost[j]:
-                cost[j] = f
-                population[j] = trial
-                if f < cost[best_idx]: #and all(bounds[k][0]<=trial_denorm[k]<=bounds[k][1] for k in range(len(trial_denorm))):
-                    best_idx = j
+            # If the cost of the trial vector is less than the cost of the original vector than this vector, and associated cost, are replaced. Unless the 
+            if f < cost[k] and all(bounds[j][0]<=trial_denorm[g]<=bounds[j][1] for j in range(len(bounds))):
+                cost[k] = f
+                w[k] = trial
+                
+            # If the current cost is less than the previous best cost, then this index is replaced.
+                if f < cost[best_idx] :
+                    best_idx = k
                     best = trial_denorm
             #................................................................
         
@@ -155,7 +168,9 @@ def task_1():
         are the numpy arrays defined in the context of function 'task_1'.        
         '''
         Y_pred = fmodel(X, w)
-        return np.sqrt(sum((Y_pred-Y)**2).mean())
+        # To calculate the mean square error between the Y returned by fmodel and the initial Y values.
+        return np.sqrt(sum((Y-Y_pred)**2) / len(Y)) 
+        
 
 
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
@@ -163,14 +178,14 @@ def task_1():
     # Create the training set
     X = np.linspace(-5, 5, 500)
     Y = np.cos(X) + np.random.normal(0, 0.2, len(X))
-    '''
+    
+    
     # Create the DE generator
-    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, mut=1, maxiter=2000, verbose=False)
+    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, maxiter=500, verbose=True, verbose2=False)
     
     # We'll stop the search as soon as we found a solution with a smaller
     # cost than the target cost
-    target_cost = 0.5
-    
+    target_cost = 0.3
     
     # Loop on the DE generator
     for i , p in enumerate(de_gen):
@@ -179,21 +194,32 @@ def task_1():
         # c_w : cost of w        
         # Stop when solution cost is less than the target cost
         if c_w < target_cost : # Added stop when current cost of best solution is less than target cost / Max
-            break
-    '''
-        
+            break 
     # Print the search result
-    # print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
-    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=1000, verbose=False))    
-    w = result[-1][0]
+    print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
+    
+    
+    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=500, verbose=True, verbose2=False))
+    w2 = result[-1][0]
+    c_w2 = result[-1][1]
+    
+    print('Best cost found is {}'.format(c_w2))
         
     # Plot the approximating polynomial
     plt.scatter(X, Y, s=2)
     plt.plot(X, np.cos(X), 'r-',label='cos(x)')
     plt.plot(X, fmodel(X, w), 'g-',label='model')
+    plt.plot(X, fmodel(X, w2), 'b-',label='model 2') # Added this to plot both usages of DE.
     plt.legend()
     plt.title('Polynomial fit using DE')
-    plt.show()    
+    plt.show()
+    
+    # Shows the lowest cost returned by fmodel for the different number of iterations of all vectors in the population.
+    #x, f = zip(*result)
+    #plt.plot(f)
+    
+    
+    
     
 
 # ----------------------------------------------------------------------------
@@ -289,9 +315,22 @@ def task_3():
 # ----------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+
 if __name__ == "__main__":
     pass
     task_1()    
 #    task_2()    
 #    task_3()    
+
+
+
+
+
+
 
