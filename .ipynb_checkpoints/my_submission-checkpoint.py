@@ -140,9 +140,8 @@ def task_1():
             
         '''DONE - INSERT MISSING CODE HERE'''
         # Following 2 lines inserted by Max
-        # Same code as in prac 3 exercise 2, apart from the reversed duple.
-        for i in reversed(range(0,len(w))):
-            y = w[i] + y*x
+        for i in range(0,len(w)):
+            y += (w[i] * (x**i))
     
         return y
 
@@ -156,7 +155,7 @@ def task_1():
         are the numpy arrays defined in the context of function 'task_1'.        
         '''
         Y_pred = fmodel(X, w)
-        return np.sqrt(sum((Y_pred-X)**2).mean())
+        return np.sqrt(sum((Y_pred-Y)**2).mean())
 
 
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
@@ -185,7 +184,7 @@ def task_1():
         
     # Print the search result
     # print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
-    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=5000, verbose=False))    
+    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=1000, verbose=False))    
     w = result[-1][0]
         
     # Plot the approximating polynomial
