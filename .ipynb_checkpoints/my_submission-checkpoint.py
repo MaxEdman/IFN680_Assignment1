@@ -84,7 +84,7 @@ def differential_evolution(fobj,
     for i in range(maxiter):
         #if verbose2: For testing
         if verbose:
-            print('** Starting generation {}, '.format(i))    
+            print('** Starting generation {}, '.format(i+1))    
         
         for k in range(popsize) :
             #................................................................
@@ -349,14 +349,88 @@ def task_3():
     '''
     
     def test_computational_budget(population_size, max_iter):
-        pass
+        # For every pair create a new DE generator and transform it to a list. 
+        result = list(differential_evolution(
+            eval_hyper, 
+            bounds, 
+            mut = 1,
+            popsize=population_size, 
+            maxiter=max_iter,
+            verbose=True))
+        # Zips the result into multiple arrays.
+        x, f = zip(*result)
+        return f
     
+    
+    # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+    # This function needs to be included as a nested function in Task_3 as well.
+    def eval_hyper(w):
+        '''
+        Return the negative of the accuracy of a MLP with trained 
+        with the hyperparameter vector w
+        
+        alpha : float, optional, default 0.0001
+                L2 penalty (regularization term) parameter.
+        '''
+        
+        nh1, nh2, alpha, learning_rate_init  = (
+                int(1+w[0]), # nh1
+                int(1+w[1]), # nh2
+                10**w[2], # alpha on a log scale
+                10**w[3]  # learning_rate_init  on a log scale
+                )
+        
+        #Original value verbose = 10
+        verbose = False
+
+        clf = MLPClassifier(hidden_layer_sizes=(nh1, nh2), 
+                            max_iter=100, 
+                            alpha=alpha, #1e-4
+                            learning_rate_init=learning_rate_init, #.001
+                            solver='sgd', verbose=verbose, tol=1e-4, random_state=1
+                            )
+        
+        clf.fit(X_train_transformed, y_train)
+        # compute the accurary on the test set
+        #mean_accuracy = 0 #clf.score( 'INSERT MISSING CODE HERE'
+        # Sets the mean accuracy to the test score for the MLPClassifier.
+        mean_accuracy = clf.score(X_test_transformed, y_test)
+ 
+        return -mean_accuracy
+    
+    # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+
+    # Load the dataset
+    X_all = np.loadtxt('dataset/dataset_inputs.txt', dtype=np.uint8)[:1000]
+    y_all = np.loadtxt('dataset/dataset_targets.txt',dtype=np.uint8)[:1000]    
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(
+                                X_all, y_all, test_size=0.4, random_state=42)
+       
+    # Preprocess the inputs with 'preprocessing.StandardScaler'
+    
+    scaler = preprocessing.StandardScaler().fit(X_train)
+    X_train_transformed = scaler.transform(X_train)
+    X_test_transformed = scaler.transform(X_test)
+
+    
+    bounds = [(1,100),(1,100),(-6,2),(-6,1)]  # bounds for hyperparameters
+
     # Array containing pairs of population_size, max_iter
     x = [(5,40), (10,20),(20,10),(40,5)]
+    colours = ['g-','b-','r-','y-']
+    i = 0
     
     # Loop through the array of pairs to evaluate the results.
     for pair in x :
-        pass
+        # Creates a string as a label for the current graph.
+        label_str = 'Pop_size {} - Max_iter {}'.format(pair[0], pair[1])
+        # Call method to get the data to plot.
+        plt.plot(test_computational_budget(pair[0], pair[1]), colours[i], label=label_str)
+        i += 1
+    
+    plt.legend()
+    plt.title('Comparing iterations and population size.')
+    plt.show()
     
 
 # ----------------------------------------------------------------------------
