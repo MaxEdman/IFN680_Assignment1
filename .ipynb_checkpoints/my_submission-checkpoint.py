@@ -34,8 +34,7 @@ def differential_evolution(fobj,
                            crossp=0.7, 
                            popsize=20, 
                            maxiter=100,
-                           verbose = True,
-                           verbose2 = True):
+                           verbose = True): # For testing add verbose2 = True
     '''
     This generator function yields the best solution x found so far and 
     its corresponding value of fobj(x) at each iteration. In order to obtain 
@@ -83,7 +82,8 @@ def differential_evolution(fobj,
         '** Lowest cost in initial population = {} '
         .format(cost[best_idx]))        
     for i in range(maxiter):
-        if verbose2:
+        #if verbose2: For testing
+        if verbose:
             print('** Starting generation {}, '.format(i))    
         
         for k in range(popsize) :
@@ -112,7 +112,7 @@ def differential_evolution(fobj,
             f = fobj(trial_denorm)
 
             # If the cost of the trial vector is less than the cost of the original vector than this vector, and associated cost, are replaced. Unless the 
-            if f < cost[k] and all(bounds[j][0]<=trial_denorm[g]<=bounds[j][1] for j in range(len(bounds))):
+            if f < cost[k] and all(bounds[j][0]<=trial_denorm[j]<=bounds[j][1] for j in range(len(bounds))):
                 cost[k] = f
                 w[k] = trial
                 
@@ -174,7 +174,40 @@ def task_1():
 
 
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+    # Create the training set
+    X = np.linspace(-5, 5, 500)
+    Y = np.cos(X) + np.random.normal(0, 0.2, len(X))
     
+    # Create the DE generator
+    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, mut=1, maxiter=2000)
+    
+    # We'll stop the search as soon as we found a solution with a smaller
+    # cost than the target cost
+    target_cost = 0.5
+    
+    # Loop on the DE generator
+    for i , p in enumerate(de_gen):
+        w, c_w = p
+        # w : best solution so far
+        # c_w : cost of w        
+        # Stop when solution cost is less than the target cost
+        if c_w < target_cost : # Added stop when current cost of best solution is less than target cost
+            break
+        
+    # Print the search result
+    print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
+    #    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=1000))    
+    #    w = result[-1][0]
+        
+    # Plot the approximating polynomial
+    plt.scatter(X, Y, s=2)
+    plt.plot(X, np.cos(X), 'r-',label='cos(x)')
+    plt.plot(X, fmodel(X, w), 'g-',label='model')
+    plt.legend()
+    plt.title('Polynomial fit using DE')
+    plt.show()  
+    
+    ''' Configured for testing
     # Create the training set
     X = np.linspace(-5, 5, 500)
     Y = np.cos(X) + np.random.normal(0, 0.2, len(X))
@@ -217,6 +250,7 @@ def task_1():
     # Shows the lowest cost returned by fmodel for the different number of iterations of all vectors in the population.
     #x, f = zip(*result)
     #plt.plot(f)
+    '''
     
     
     
