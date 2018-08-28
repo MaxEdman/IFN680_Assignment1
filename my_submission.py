@@ -151,7 +151,6 @@ def task_1():
             assert type(x) is np.ndarray
             y = np.zeros_like(x)
             
-        '''DONE - INSERT MISSING CODE HERE'''
         # Following 2 lines inserted by Max
         for i in range(0,len(w)):
             y += (w[i] * (x**i))
@@ -293,15 +292,17 @@ def task_2():
         
         clf.fit(X_train_transformed, y_train)
         # compute the accurary on the test set
-        mean_accuracy = 0 #clf.score( 'INSERT MISSING CODE HERE'
+        #mean_accuracy = 0 #clf.score( 'INSERT MISSING CODE HERE'
+        # Sets the mean accuracy to the test score for the MLPClassifier.
+        mean_accuracy = clf.score(X_test_transformed, y_test)
  
         return -mean_accuracy
     
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
 
     # Load the dataset
-    X_all = np.loadtxt('dataset_inputs.txt', dtype=np.uint8)[:1000]
-    y_all = np.loadtxt('dataset_targets.txt',dtype=np.uint8)[:1000]    
+    X_all = np.loadtxt('dataset/dataset_inputs.txt', dtype=np.uint8)[:1000]
+    y_all = np.loadtxt('dataset/dataset_targets.txt',dtype=np.uint8)[:1000]    
     X_train, X_test, y_train, y_test = model_selection.train_test_split(
                                 X_all, y_all, test_size=0.4, random_state=42)
        
@@ -309,8 +310,7 @@ def task_2():
     
     scaler = preprocessing.StandardScaler().fit(X_train)
     X_train_transformed = scaler.transform(X_train)
-    X_test_transformed =  'INSERT MISSING CODE HERE'
-
+    X_test_transformed = scaler.transform(X_test)
 
     
     bounds = [(1,100),(1,100),(-6,2),(-6,1)]  # bounds for hyperparameters
@@ -321,11 +321,12 @@ def task_2():
             mut = 1,
             popsize=10, 
             maxiter=20,
-            verbose=True)
+            verbose=False)
     
     for i, p in enumerate(de_gen):
-        w, c_w =    'INSERT MISSING CODE HERE'
+        w, c_w = p
         print('Generation {},  best cost {}'.format(i,abs(c_w)))
+        
         # Stop if the accuracy is above 90%
         if abs(c_w)>0.90:
             break
@@ -340,11 +341,23 @@ def task_2():
 
 def task_3():
     '''
-    Place holder for Task 3    
+    The purpose of task_3 is to perform experiments by comparing the population size and maximum number of iterations. The results will show what combination gives the best results for training neural networks on a computational budget.
+    
+    The array to be tested is the following:
+    x = [(5,40), (10,20),(20,10),(40,5)]
+    Where every entry in x is a pair of (population size, max iterations).
     '''
-    pass
-    'INSERT MISSING CODE HERE'
-
+    
+    def test_computational_budget(population_size, max_iter):
+        pass
+    
+    # Array containing pairs of population_size, max_iter
+    x = [(5,40), (10,20),(20,10),(40,5)]
+    
+    # Loop through the array of pairs to evaluate the results.
+    for pair in x :
+        pass
+    
 
 # ----------------------------------------------------------------------------
 
@@ -358,13 +371,6 @@ def task_3():
 
 if __name__ == "__main__":
     pass
-    task_1()    
+#    task_1()    
 #    task_2()    
 #    task_3()    
-
-
-
-
-
-
-
