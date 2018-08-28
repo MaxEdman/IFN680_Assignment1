@@ -282,12 +282,14 @@ def task_2():
                 10**w[3]  # learning_rate_init  on a log scale
                 )
 
-
+        #verbose = 10 # Original value 
+        verbose = False
+        
         clf = MLPClassifier(hidden_layer_sizes=(nh1, nh2), 
                             max_iter=100, 
                             alpha=alpha, #1e-4
                             learning_rate_init=learning_rate_init, #.001
-                            solver='sgd', verbose=10, tol=1e-4, random_state=1
+                            solver='sgd', verbose=verbose, tol=1e-4, random_state=1
                             )
         
         clf.fit(X_train_transformed, y_train)
@@ -332,7 +334,7 @@ def task_2():
             break
  
     # Print the search result
-    print('Stopped search after {} generation. Best accuracy reached is {}'.format(i,abs(c_w)))   
+    print('Stopped search after {} generation. Best accuracy reached is {}'.format(i+1,abs(c_w)))   
     print('Hyperparameters found:')
     print('nh1 = {}, nh2 = {}'.format(int(1+w[0]), int(1+w[1])))          
     print('alpha = {}, learning_rate_init = {}'.format(10**w[2],10**w[3]))
