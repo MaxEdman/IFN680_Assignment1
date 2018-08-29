@@ -194,7 +194,7 @@ def task_1():
             break
         
     # Print the search result
-    print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
+    print('Stopped search after {} generation. Best cost found is {}'.format(i+1,c_w))
     #    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=1000))    
     #    w = result[-1][0]
         
@@ -447,6 +447,6 @@ def task_3():
 
 if __name__ == "__main__":
     pass
-#    task_1()    
-#    task_2()    
-#    task_3()    
+#   task_1()    
+#   task_2()    
+#   task_3()   
