@@ -351,6 +351,7 @@ def task_3():
     '''
     
     def test_computational_budget(population_size, max_iter):
+        
         # For every pair create a new DE generator and transform it to a list. 
         result = list(differential_evolution(
             eval_hyper, 
@@ -359,6 +360,7 @@ def task_3():
             popsize=population_size, 
             maxiter=max_iter,
             verbose=True))
+        
         # Zips the result into multiple arrays.
         x, f = zip(*result)
         return f
@@ -398,7 +400,7 @@ def task_3():
         # Sets the mean accuracy to the test score for the MLPClassifier.
         mean_accuracy = clf.score(X_test_transformed, y_test)
  
-        return -mean_accuracy
+        return 1-mean_accuracy
     
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
 
@@ -413,26 +415,54 @@ def task_3():
     scaler = preprocessing.StandardScaler().fit(X_train)
     X_train_transformed = scaler.transform(X_train)
     X_test_transformed = scaler.transform(X_test)
-
-    
     bounds = [(1,100),(1,100),(-6,2),(-6,1)]  # bounds for hyperparameters
 
-    # Array containing pairs of population_size, max_iter
-    x = [(5,40), (10,20),(20,10),(40,5)]
-    colours = ['g-','b-','r-','y-']
-    i = 0
+    # Array containing pairs of population_size = 0, max_iter = 1.
+    x = [(5,40,'g'),(10,20,'b'),(20,10,'c'),(40,5,'y')]
+    #x = [(4,2,'g'), (4,4,'b')]
     
-    # Loop through the array of pairs to evaluate the results.
+    # Number of samples for each test to run.
+    sample_size = 10
+    
+    # Colours to plot the different graphs.
+    #colours = ['g','b','c','y']
+
+    # Loop through the array of pairs to evaluate the results. population_size = 0, max_iter = 1.
     for pair in x :
-        # Creates a string as a label for the current graph.
+        # Empty array to contain the sample data.
+        dataArray = np.zeros(shape=(sample_size, pair[1]))
+        
+        # Loops n times to get data from the function defined in task_2.
+        for i in range(sample_size):
+            print('Starting sample round number {}'.format(i))
+            dataArray[i] = test_computational_budget(pair[0], pair[1])
+        
+        # Calculates the mean data over the columns.
+        meanData = dataArray.mean(axis=0)
+        print("MeanData:")
+        print(meanData)
+        print("DataArray:")
+        print(dataArray)
+        
+        # Calculates the standard deviaton to use as an error value.
+        _STD = np.std(dataArray, axis=0) # Might change axis if its not returning correct values.
+        print("Standard Deviation: {}".format(_STD))
+        
+        # Defines array of x-values.
+        x_values = np.linspace(start=1, stop=pair[1], num=pair[1])
+        
+        # Creates a string as a label for the current graph. Pop_size = 0, max_iter = 1
         label_str = 'Pop_size {} - Max_iter {}'.format(pair[0], pair[1])
-        # Call method to get the data to plot.
-        plt.plot(test_computational_budget(pair[0], pair[1]), colours[i], label=label_str)
-        i += 1
-    
-    plt.legend()
-    plt.title('Comparing iterations and population size.')
-    plt.show()
+        
+        # Plots the whole thingy
+        plt.errorbar(x=x_values, y=meanData, yerr=_STD, c=pair[2], ecolor='r', fmt='o-', label=label_str)
+        
+        # One plot for each run.
+        plt.xlabel('Number of Iterations')
+        plt.ylabel('Error Score')
+        plt.legend()
+        plt.title('Comparing iterations and population size.')
+        plt.show()
     
 
 # ----------------------------------------------------------------------------
