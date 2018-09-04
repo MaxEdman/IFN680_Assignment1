@@ -418,7 +418,8 @@ def task_3():
     bounds = [(1,100),(1,100),(-6,2),(-6,1)]  # bounds for hyperparameters
 
     # Array containing pairs of population_size = 0, max_iter = 1.
-    x = [(5,40,'g'),(10,20,'b'),(20,10,'c'),(40,5,'y')]
+    #x = [(5,40,'g'),(10,20,'b'),(20,10,'c'),(40,5,'y')]
+    x = [(10,20,'b'),(20,10,'c'),(40,5,'y')]
     #x = [(4,2,'g'), (4,4,'b')]
     
     # Number of samples for each test to run.
