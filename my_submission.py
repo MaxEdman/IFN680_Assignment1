@@ -206,55 +206,6 @@ def task_1():
     plt.title('Polynomial fit using DE')
     plt.show()  
     
-    ''' Configured for testing
-    # Create the training set
-    X = np.linspace(-5, 5, 500)
-    Y = np.cos(X) + np.random.normal(0, 0.2, len(X))
-    
-    
-    # Create the DE generator
-    de_gen = differential_evolution(rmse, [(-5, 5)] * 6, maxiter=500, verbose=True, verbose2=False)
-    
-    # We'll stop the search as soon as we found a solution with a smaller
-    # cost than the target cost
-    target_cost = 0.3
-    
-    # Loop on the DE generator
-    for i , p in enumerate(de_gen):
-        w, c_w = p
-        # w : best solution so far
-        # c_w : cost of w        
-        # Stop when solution cost is less than the target cost
-        if c_w < target_cost : # Added stop when current cost of best solution is less than target cost / Max
-            break 
-    # Print the search result
-    print('Stopped search after {} generation. Best cost found is {}'.format(i,c_w))
-    
-    
-    result = list(differential_evolution(rmse, [(-5, 5)] * 6, maxiter=500, verbose=True, verbose2=False))
-    w2 = result[-1][0]
-    c_w2 = result[-1][1]
-    
-    print('Best cost found is {}'.format(c_w2))
-        
-    # Plot the approximating polynomial
-    plt.scatter(X, Y, s=2)
-    plt.plot(X, np.cos(X), 'r-',label='cos(x)')
-    plt.plot(X, fmodel(X, w), 'g-',label='model')
-    plt.plot(X, fmodel(X, w2), 'b-',label='model 2') # Added this to plot both usages of DE.
-    plt.legend()
-    plt.title('Polynomial fit using DE')
-    plt.show()
-    
-    # Shows the lowest cost returned by fmodel for the different number of iterations of all vectors in the population.
-    #x, f = zip(*result)
-    #plt.plot(f)
-    '''
-    
-    
-    
-    
-
 # ----------------------------------------------------------------------------
 
 def task_2():
@@ -343,7 +294,9 @@ def task_2():
 
 def task_3():
     '''
-    The purpose of task_3 is to perform experiments by comparing the population size and maximum number of iterations. The results will show what combination gives the best results for training neural networks on a computational budget.
+    The purpose of task_3 is to perform experiments by comparing the population size and 
+    maximum number of iterations. The results will show what combination gives the best 
+    results for training neural networks on a computational budget.
     
     The array to be tested is the following:
     x = [(5,40), (10,20),(20,10),(40,5)]
@@ -364,7 +317,6 @@ def task_3():
         # Zips the result into multiple arrays.
         x, f = zip(*result)
         return f
-    
     
     # . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
     # This function needs to be included as a nested function in Task_3 as well.
@@ -411,15 +363,14 @@ def task_3():
                                 X_all, y_all, test_size=0.4, random_state=42)
        
     # Preprocess the inputs with 'preprocessing.StandardScaler'
-    
     scaler = preprocessing.StandardScaler().fit(X_train)
     X_train_transformed = scaler.transform(X_train)
     X_test_transformed = scaler.transform(X_test)
     bounds = [(1,100),(1,100),(-6,2),(-6,1)]  # bounds for hyperparameters
 
-    # Array containing pairs of population_size = 0, max_iter = 1.
-    #x = [(5,40,'g'),(10,20,'b'),(20,10,'c'),(40,5,'y')]
-    x = [(10,20,'b'),(20,10,'c'),(40,5,'y')]
+    # Array containing pairs of population_size = 0, max_iter = 1, graph colour = 2.
+    x = [(5,40,'g'),(10,20,'b'),(20,10,'c'),(40,5,'y')]
+    #x = [(10,20,'b'),(20,10,'c'),(40,5,'y')]
     #x = [(4,2,'g'), (4,4,'b')]
     
     # Number of samples for each test to run.
